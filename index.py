@@ -1,19 +1,24 @@
-import PIL.Image
-# import pyzbar 
-# import PIL
-import pyzbar.pyzbar
+import cv2
+from pyzbar.pyzbar import decode
 
-# Replace 'ticket_qr.png' with the path to your QR code image
-image_path = './qr2.png'
-image = PIL.Image.open(image_path)
+# Replace with your ticket QR/Aztec image path
+image_path = './aztec_code.png'
 
-# Decode the QR code
-decoded_objects = pyzbar.pyzbar.decode(image)
+# Load image
+img = cv2.imread(image_path)
 
-if decoded_objects:
-    for obj in decoded_objects:
-        print("Type:", obj.type)
-        print("Data (raw):", obj.data)
-        print("Data (decoded text if possible):", obj.data.decode('utf-8', errors='ignore'))
+# Decode all barcodes/QR/Aztec codes in the image
+decoded_objects = decode(img)
+
+if not decoded_objects:
+    print("No barcode/QR/Aztec code detected. Try adjusting image contrast or resolution.")
 else:
-    print("No QR code detected in the image.")
+    for obj in decoded_objects:
+        print(f"Type: {obj.type}")
+        raw_data = obj.data
+        print(f"Raw bytes: {raw_data}")
+        print(f"Hex: {raw_data.hex()}")
+        try:
+            print(f"Text (if readable): {raw_data.decode('utf-8')}")
+        except UnicodeDecodeError:
+            print("Text: Not valid UTF-8")
